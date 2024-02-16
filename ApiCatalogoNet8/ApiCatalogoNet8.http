@@ -1,0 +1,6 @@
+@ApiCatalogoNet8_HostAddress = http://localhost:5057
+
+GET {{ApiCatalogoNet8_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
