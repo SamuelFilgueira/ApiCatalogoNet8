@@ -77,13 +77,13 @@ namespace ApiCatalogoNet8.Controllers
 
             if (produto is null)
             {
-                return BadRequest();
+                return NotFound("Produto não encontrado");
             }
 
             _context.Produtos.Remove(produto);
             _context.SaveChanges();
 
-            return produto;
+            return Ok(produto);
         }
     }
 }
