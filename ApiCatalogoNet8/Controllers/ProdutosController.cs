@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiCatalogoNet8.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ProdutosController : ControllerBase
     {
@@ -28,7 +28,7 @@ namespace ApiCatalogoNet8.Controllers
             return Ok(produtos);
         }
 
-        [HttpGet("{id}", Name = "ObterProduto")]
+        [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
             var produto = _context.Produtos.AsNoTracking().FirstOrDefault(x => x.ProdutoId == id);
