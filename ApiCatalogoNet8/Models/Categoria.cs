@@ -14,7 +14,7 @@ public class Categoria
     public int CategoriaId { get; set; }
 
     [Required]
-    [StringLength(80)]
+    [StringLength(80, ErrorMessage = "O nome deve conter entre 5 e 80 caracteres", MinimumLength = 5)]
     public string? Nome { get; set; }
 
     [Required]

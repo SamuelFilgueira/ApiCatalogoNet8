@@ -9,8 +9,8 @@ public class Produto
     [Key]
     public int ProdutoId { get; set; }
 
-    [Required]
-    [StringLength(80)]
+    [Required(ErrorMessage ="O nome é obrigatório")]
+    [StringLength(80, ErrorMessage ="O nome deve conter entre 5 e 80 caracteres", MinimumLength =5)]
     public string? Nome { get; set; }
 
     [Required]
@@ -18,6 +18,7 @@ public class Produto
     public string? Descricao { get; set; }
 
     [Required]
+    [Range(1, 1000, ErrorMessage ="O preço deve estar entre {1} e {2}")]
     [Column(TypeName ="decimal(10,2)")]
     public decimal Preco { get; set; }
 

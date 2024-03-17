@@ -1,4 +1,5 @@
 ﻿using ApiCatalogoNet8.Context;
+using ApiCatalogoNet8.Filters;
 using ApiCatalogoNet8.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,15 +18,16 @@ namespace ApiCatalogoNet8.Controllers
         }
 
         [HttpGet("produtos")]
-        public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
+        public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriasProdutos()
         {
-            return _context.Categorias.AsNoTracking().Include(p => p.Produtos).ToList();
+            return await _context.Categorias.AsNoTracking().Include(p => p.Produtos).ToListAsync();
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Categoria>> Get()
+        [ServiceFilter(typeof(ApiLoggingFilter))]
+        public async Task<ActionResult<IEnumerable<Categoria>>> Get()
         {
-            var categorias = _context.Categorias.AsNoTracking().ToList();
+            var categorias = await _context.Categorias.AsNoTracking().ToListAsync();
             if (categorias is null)
             {
                 return NotFound("Categorias não encontradas");
