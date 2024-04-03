@@ -4,9 +4,9 @@ namespace ApiCatalogoNet8.Repositories;
 
 public interface ICategoriaRepository
 {
-    IEnumerable<Categoria> GetCategorias();
-    Categoria GetCategoria(int id);
-    Categoria Create(Categoria categoria);
-    Categoria Update(Categoria categoria);
-    Categoria Delete(int id);   
+    Task<IEnumerable<Categoria>> GetCategorias();
+    Task<Categoria> GetCategoria(int id);
+    Task<Categoria> Create(Categoria categoria);
+    Task<Categoria> Update(Categoria categoria);
+    Task<Categoria> Delete(int id);
 }

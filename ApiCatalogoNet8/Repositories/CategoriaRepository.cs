@@ -1,61 +1,61 @@
 ﻿using ApiCatalogoNet8.Context;
 using ApiCatalogoNet8.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
-namespace ApiCatalogoNet8.Repositories;
-
-public class CategoriaRepository : ICategoriaRepository
+namespace ApiCatalogoNet8.Repositories
 {
-    private readonly AppDbContext _context;
-
-    public CategoriaRepository(AppDbContext context)
+    public class CategoriaRepository : ICategoriaRepository
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    public IEnumerable<Categoria> GetCategorias()
-    {
-        var categorias = _context.Categorias.ToList();
-        return categorias;
-    }
-
-    public Categoria GetCategoria(int id)
-    {
-        var categoria = _context.Categorias.FirstOrDefault(c => c.CategoriaId == id);
-        return categoria;
-    }
-
-    public Categoria Create(Categoria categoria)
-    {
-        if(categoria == null)
+        public CategoriaRepository(AppDbContext context)
         {
-            throw new ArgumentNullException(nameof(categoria));
+            _context = context;
         }
-        _context.Categorias.Add(categoria);
-        _context.SaveChanges();
-        return categoria;
-    }
 
-    public Categoria Update(Categoria categoria)
-    {
-        if(categoria == null)
+        public async Task<IEnumerable<Categoria>> GetCategorias()
         {
-            throw new ArgumentNullException(nameof(categoria));
+            return await _context.Categorias.ToListAsync();
         }
-        _context.Entry(categoria).State = EntityState.Modified;
-        _context.SaveChanges();
-        return categoria;
-    }
 
-    public Categoria Delete(int id)
-    {
-        var categoria = _context.Categorias.Find(id);
-        if (categoria == null)
+        public async Task<Categoria> GetCategoria(int id)
         {
-            throw new ArgumentNullException(nameof(categoria));
+            return await _context.Categorias.AsNoTracking().FirstOrDefaultAsync(c => c.CategoriaId == id);
         }
-        _context.Categorias.Remove(categoria);
-        _context.SaveChanges();
-        return categoria;
+
+        public async Task<Categoria> Create(Categoria categoria)
+        {
+            if (categoria == null)
+            {
+                throw new ArgumentNullException(nameof(categoria));
+            }
+            await _context.Categorias.AddAsync(categoria);
+            await _context.SaveChangesAsync();
+            return categoria;
+        }
+
+        public async Task<Categoria> Update(Categoria categoria)
+        {
+            if (categoria == null)
+            {
+                throw new ArgumentNullException(nameof(categoria));
+            }
+            _context.Entry(categoria).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return categoria;
+        }
+
+        public async Task<Categoria> Delete(int id)
+        {
+            var categoria = await _context.Categorias.FindAsync(id);
+            if (categoria == null)
+            {
+                throw new ArgumentNullException(nameof(categoria));
+            }
+            _context.Categorias.Remove(categoria);
+            await _context.SaveChangesAsync();
+            return categoria;
+        }
     }
 }

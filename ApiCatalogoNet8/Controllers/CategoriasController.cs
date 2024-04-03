@@ -1,6 +1,7 @@
 ﻿using ApiCatalogoNet8.Context;
 using ApiCatalogoNet8.Filters;
 using ApiCatalogoNet8.Models;
+using ApiCatalogoNet8.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,23 +12,23 @@ namespace ApiCatalogoNet8.Controllers
     [ApiController]
     public class CategoriasController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public CategoriasController(AppDbContext context)
+        private readonly ICategoriaRepository _repository;
+        public CategoriasController(ICategoriaRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
-        [HttpGet("produtos")]
-        public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriasProdutos()
-        {
-            return await _context.Categorias.AsNoTracking().Include(p => p.Produtos).ToListAsync();
-        }
+        //[HttpGet("produtos")]
+        //public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriasProdutos()
+        //{
+        //    return await _context.Categorias.AsNoTracking().Include(p => p.Produtos).ToListAsync();
+        //}
 
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
         public async Task<ActionResult<IEnumerable<Categoria>>> Get()
         {
-            var categorias = await _context.Categorias.AsNoTracking().ToListAsync();
+            var categorias = await _repository.GetCategorias();
             if (categorias is null)
             {
                 return NotFound("Categorias não encontradas");
@@ -36,9 +37,9 @@ namespace ApiCatalogoNet8.Controllers
         }
 
         [HttpGet("{id}", Name = "ObterCategoria")]
-        public ActionResult<Produto> Get(int id)
+        public async Task<ActionResult<Produto>> Get(int id)
         {
-            var categoria = _context.Categorias.AsNoTracking().FirstOrDefault(x => x.CategoriaId == id);
+            var categoria = await _repository.GetCategoria(id);
 
             if (categoria is null)
             {
@@ -49,47 +50,35 @@ namespace ApiCatalogoNet8.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Produto> Post(Categoria novaCategoria)
+        public async Task<ActionResult<Produto>> Post(Categoria novaCategoria)
         {
 
-            if (novaCategoria is null)
-            {
-                return NotFound("Informe uma categoria!");
-            }
+            //if (novaCategoria is null)
+            //{
+            //    return NotFound("Informe uma categoria!");
+            //}
 
-            _context.Categorias.Add(novaCategoria);
-            _context.SaveChanges();
-
-            return new CreatedAtRouteResult("ObterCategoria", new { id = novaCategoria.CategoriaId }, novaCategoria);
+            var categoriaCriada = await _repository.Create(novaCategoria);
+            return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriada.CategoriaId }, categoriaCriada);
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(int id, Categoria categoria)
+        public async Task<ActionResult<Categoria>> Put(int id, Categoria categoria)
         {
             if (id != categoria.CategoriaId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(categoria).State = EntityState.Modified;
-            _context.SaveChanges();
+            var categoriaAtualizada = await _repository.Update(categoria);
 
-            return Ok(categoria);
+            return Ok(categoriaAtualizada);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<Categoria> Delete(int id)
+        public async Task<ActionResult<Categoria>> Delete(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
-
-            if (categoria is null)
-            {
-                return NotFound("Categoria não encontrada");
-            }
-
-            _context.Categorias.Remove(categoria);
-            _context.SaveChanges();
-
+            var categoria = await _repository.Delete(id);
             return Ok(categoria);
         }
     }
