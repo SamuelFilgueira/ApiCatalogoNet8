@@ -1,5 +1,6 @@
 using ApiCatalogoNet8.Context;
 using ApiCatalogoNet8.Filters;
+using ApiCatalogoNet8.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -27,6 +28,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 builder.Services.AddScoped<ApiLoggingFilter>();
+builder.Services.AddScoped<ICategoriaRepository,CategoriaRepository>();
 
 var app = builder.Build();
 
