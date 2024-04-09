@@ -15,13 +15,17 @@ namespace ApiCatalogoNet8.Repositories
 
         public async Task<IEnumerable<Produto>> GetProdutos(Produto produto)
         {
-            var produtos = await _context.Produtos.ToListAsync();
+            var produtos = await _context.Produtos.AsNoTracking().ToListAsync();
             return produtos;
         }
 
         public async Task<Produto> GetProduto(int id)
         {
-            var produto = await _context.Produtos.FindAsync(id);
+            var produto = await _context.Produtos.FirstOrDefaultAsync(p => p.ProdutoId == id);
+            if(produto == null)
+            {
+                throw new InvalidOperationException("O produto é nulo");
+            }
             return produto;
         }
 
@@ -35,14 +39,27 @@ namespace ApiCatalogoNet8.Repositories
             await _context.SaveChangesAsync();
             return produto;
         }
-        public Task<bool> Update(Produto produto)
+        public async Task<bool> Update(Produto produto)
         {
-            throw new NotImplementedException();
+            if(produto == null)
+                throw new InvalidOperationException("O produto é nulo");
+            if (await _context.Produtos.AnyAsync(p => p.ProdutoId == produto.ProdutoId))
+            {
+                return true;
+            }   
+            return false;
         }
 
-        public Task<bool> Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            throw new NotImplementedException();
+            var produto = await _context.Produtos.FindAsync(id);
+            if(produto != null)
+            {
+                _context.Produtos.Remove(produto);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
 
     }
