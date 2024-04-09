@@ -52,12 +52,6 @@ namespace ApiCatalogoNet8.Controllers
         [HttpPost]
         public async Task<ActionResult<Produto>> Post(Categoria novaCategoria)
         {
-
-            //if (novaCategoria is null)
-            //{
-            //    return NotFound("Informe uma categoria!");
-            //}
-
             var categoriaCriada = await _repository.Create(novaCategoria);
             return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriada.CategoriaId }, categoriaCriada);
         }
