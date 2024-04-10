@@ -43,8 +43,10 @@ namespace ApiCatalogoNet8.Repositories
         {
             if(produto == null)
                 throw new InvalidOperationException("O produto é nulo");
-            if (await _context.Produtos.AnyAsync(p => p.ProdutoId == produto.ProdutoId))
+            if (_context.Produtos.Any(p => p.ProdutoId == produto.ProdutoId))
             {
+                _context.Produtos.Update(produto);
+                await _context.SaveChangesAsync();
                 return true;
             }   
             return false;
