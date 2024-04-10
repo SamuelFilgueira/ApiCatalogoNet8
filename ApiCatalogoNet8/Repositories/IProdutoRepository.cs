@@ -4,7 +4,7 @@ namespace ApiCatalogoNet8.Repositories;
 
 public interface IProdutoRepository
 {
-    Task<IEnumerable<Produto>> GetProdutos(Produto produto);
+    Task<IEnumerable<Produto>> GetProdutos();
     Task<Produto> GetProduto(int id);
     Task<Produto> Create(Produto produto);
     Task<bool> Update(Produto produto);

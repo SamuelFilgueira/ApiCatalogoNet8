@@ -13,7 +13,7 @@ namespace ApiCatalogoNet8.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Produto>> GetProdutos(Produto produto)
+        public async Task<IEnumerable<Produto>> GetProdutos()
         {
             var produtos = await _context.Produtos.AsNoTracking().ToListAsync();
             return produtos;
