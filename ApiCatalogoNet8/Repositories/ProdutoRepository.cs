@@ -4,65 +4,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiCatalogoNet8.Repositories
 {
-    public class ProdutoRepository : IProdutoRepository
+    public class ProdutoRepository : Repository<Produto> ,IProdutoRepository
     {
-        private readonly AppDbContext _context;
-
-        public ProdutoRepository(AppDbContext context)
+        public ProdutoRepository(AppDbContext context):base(context)
         {
-            _context = context;
         }
 
-        public async Task<IEnumerable<Produto>> GetProdutos()
+        public async Task<IEnumerable<Produto>> GetProdutosPorCategoria(int id)
         {
-            var produtos = await _context.Produtos.AsNoTracking().ToListAsync();
-            return produtos;
-        }
+            var allProdutos = await GetAll();
+            var produtosPorCategoria = allProdutos.Where(c => c.CategoriaId == id);
+            return produtosPorCategoria;
 
-        public async Task<Produto> GetProduto(int id)
-        {
-            var produto = await _context.Produtos.FirstOrDefaultAsync(p => p.ProdutoId == id);
-            if(produto == null)
-            {
-                throw new InvalidOperationException("O produto é nulo");
-            }
-            return produto;
         }
-
-        public async Task<Produto> Create(Produto produto)
-        {
-            if(produto == null)
-            {
-                throw new ArgumentNullException(nameof(produto));
-            }
-            await _context.Produtos.AddAsync(produto);
-            await _context.SaveChangesAsync();
-            return produto;
-        }
-        public async Task<bool> Update(Produto produto)
-        {
-            if(produto == null)
-                throw new InvalidOperationException("O produto é nulo");
-            if (_context.Produtos.Any(p => p.ProdutoId == produto.ProdutoId))
-            {
-                _context.Produtos.Update(produto);
-                await _context.SaveChangesAsync();
-                return true;
-            }   
-            return false;
-        }
-
-        public async Task<bool> Delete(int id)
-        {
-            var produto = await _context.Produtos.FindAsync(id);
-            if(produto != null)
-            {
-                _context.Produtos.Remove(produto);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            return false;
-        }
-
     }
 }

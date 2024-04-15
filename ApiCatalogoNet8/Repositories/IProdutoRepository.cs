@@ -2,12 +2,7 @@
 
 namespace ApiCatalogoNet8.Repositories;
 
-public interface IProdutoRepository
+public interface IProdutoRepository : IRepository<Produto>
 {
-    Task<IEnumerable<Produto>> GetProdutos();
-    Task<Produto> GetProduto(int id);
-    Task<Produto> Create(Produto produto);
-    Task<bool> Update(Produto produto);
-    Task<bool> Delete(int id);
-
+    Task<IEnumerable<Produto>> GetProdutosPorCategoria(int id);
 }
