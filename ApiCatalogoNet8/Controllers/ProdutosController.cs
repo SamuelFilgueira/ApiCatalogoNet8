@@ -12,16 +12,30 @@ namespace ApiCatalogoNet8.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private readonly IProdutoRepository _repository;
-        public ProdutosController(IProdutoRepository repository)
+        private readonly IProdutoRepository _produtoRepository;
+        private readonly IRepository<Produto> _repository;
+        public ProdutosController(IRepository<Produto> repository, IProdutoRepository produtoRepository)
         {
+            _produtoRepository = produtoRepository;
             _repository = repository;
         }
+
+        [HttpGet("produtos/{id}")]
+        public async Task<ActionResult<IEnumerable<Produto>>> GetProdutosPorCategoria(int id)
+        {
+            var produtos = await _produtoRepository.GetProdutosPorCategoria(id);
+            if(produtos is null)
+            {
+                return NotFound();
+            }
+            return Ok(produtos);
+        }
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produto>>> Get()
         {
-            var produtos = await _repository.GetProdutos();
+            var produtos = await _repository.GetAll();
 
             if (produtos is null)
             {
@@ -33,7 +47,7 @@ namespace ApiCatalogoNet8.Controllers
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
         public async Task<ActionResult<Produto>> Get(int id)
         {
-            var produto = await _repository.GetProduto(id);
+            var produto = await _repository.Get(p => p.ProdutoId == id);
 
             if (produto is null)
             {
@@ -64,28 +78,20 @@ namespace ApiCatalogoNet8.Controllers
                 return BadRequest();
             }
 
-            bool atualiza = await _repository.Update(produto);      
-            if(atualiza == true)
-            {
-                return Ok(produto);
-            }else
-            {
-                return StatusCode(500, $"Falha ao atualizar o produto de id {id}");
-            }
+            var produtoAtualizado = await _repository.Update(produto);
+            return Ok(produtoAtualizado);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Produto>> Delete(int id)
         {
-            var produto = await _repository.Delete(id);
-
-            if(produto == true)
+            var produto = await _repository.Get(p => p.ProdutoId == id);
+            if(produto is null)
             {
-                return Ok($"O produto de id {id} foi excluído");
-            }else
-            {
-                return StatusCode(500, $"Falha ao excluir o produto de id {id}");
+                return BadRequest();
             }
+            await _repository.Delete(produto);
+            return Ok(produto);
         }
     }
 }

@@ -12,23 +12,17 @@ namespace ApiCatalogoNet8.Controllers
     [ApiController]
     public class CategoriasController : ControllerBase
     {
-        private readonly ICategoriaRepository _repository;
+        private readonly IRepository<Categoria> _repository;
         public CategoriasController(ICategoriaRepository repository)
         {
             _repository = repository;
         }
 
-        //[HttpGet("produtos")]
-        //public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriasProdutos()
-        //{
-        //    return await _context.Categorias.AsNoTracking().Include(p => p.Produtos).ToListAsync();
-        //}
-
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
         public async Task<ActionResult<IEnumerable<Categoria>>> Get()
         {
-            var categorias = await _repository.GetCategorias();
+            var categorias = await _repository.GetAll();
             if (categorias is null)
             {
                 return NotFound("Categorias não encontradas");
@@ -39,7 +33,7 @@ namespace ApiCatalogoNet8.Controllers
         [HttpGet("{id}", Name = "ObterCategoria")]
         public async Task<ActionResult<Produto>> Get(int id)
         {
-            var categoria = await _repository.GetCategoria(id);
+            var categoria = await _repository.Get(c => c.CategoriaId == id);
 
             if (categoria is null)
             {
@@ -52,6 +46,10 @@ namespace ApiCatalogoNet8.Controllers
         [HttpPost]
         public async Task<ActionResult<Produto>> Post(Categoria novaCategoria)
         {
+            if (novaCategoria is null)
+            {
+                return NotFound("Categoria não pode ser nula");
+            }
             var categoriaCriada = await _repository.Create(novaCategoria);
             return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriada.CategoriaId }, categoriaCriada);
         }
@@ -72,7 +70,12 @@ namespace ApiCatalogoNet8.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Categoria>> Delete(int id)
         {
-            var categoria = await _repository.Delete(id);
+            var categoria = await _repository.Get(c => c.CategoriaId == id);
+            if(categoria is null)
+            {
+                return NotFound($"Categoria com o id {id} não encontrada...");
+            }
+            _repository.Delete(categoria);
             return Ok(categoria);
         }
     }
