@@ -16,7 +16,7 @@ namespace ApiCatalogoNet8.Repositories
 
         public async Task<IEnumerable<T>> GetAll()
         {
-            var items = await _context.Set<T>().ToListAsync();
+            var items = await _context.Set<T>().AsNoTracking().ToListAsync();
             return items;
         }
 
@@ -29,20 +29,20 @@ namespace ApiCatalogoNet8.Repositories
         public async Task<T> Create(T entity)
         {
             var item = await _context.Set<T>().AddAsync(entity);
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return entity;
         }
         public async Task<T> Update(T entity)
         {
             _context.Set<T>().Update(entity);
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return entity;
         }
 
         public async Task<T> Delete(T entity)
         {
             _context.Set<T>().Remove(entity);
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return entity;
         }
     }
