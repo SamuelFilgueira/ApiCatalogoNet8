@@ -12,17 +12,17 @@ namespace ApiCatalogoNet8.Controllers
     [ApiController]
     public class CategoriasController : ControllerBase
     {
-        private readonly IRepository<Categoria> _repository;
-        public CategoriasController(ICategoriaRepository repository)
+        private readonly IUnitOfWork _uof;
+        public CategoriasController(IUnitOfWork uof)
         {
-            _repository = repository;
+            _uof = uof;
         }
 
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
         public async Task<ActionResult<IEnumerable<Categoria>>> Get()
         {
-            var categorias = await _repository.GetAll();
+            var categorias = await _uof.CategoriaRepository.GetAll();
             if (categorias is null)
             {
                 return NotFound("Categorias não encontradas");
@@ -33,7 +33,7 @@ namespace ApiCatalogoNet8.Controllers
         [HttpGet("{id}", Name = "ObterCategoria")]
         public async Task<ActionResult<Produto>> Get(int id)
         {
-            var categoria = await _repository.Get(c => c.CategoriaId == id);
+            var categoria = await _uof.CategoriaRepository.Get(c => c.CategoriaId == id);
 
             if (categoria is null)
             {
@@ -50,7 +50,8 @@ namespace ApiCatalogoNet8.Controllers
             {
                 return NotFound("Categoria não pode ser nula");
             }
-            var categoriaCriada = await _repository.Create(novaCategoria);
+            var categoriaCriada = await _uof.CategoriaRepository.Create(novaCategoria);
+            await _uof.Commit();
             return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriada.CategoriaId }, categoriaCriada);
         }
 
@@ -62,20 +63,21 @@ namespace ApiCatalogoNet8.Controllers
                 return BadRequest();
             }
 
-            var categoriaAtualizada = await _repository.Update(categoria);
-
+            var categoriaAtualizada = await _uof.CategoriaRepository.Update(categoria);
+            await _uof.Commit();
             return Ok(categoriaAtualizada);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Categoria>> Delete(int id)
         {
-            var categoria = await _repository.Get(c => c.CategoriaId == id);
+            var categoria = await _uof.CategoriaRepository.Get(c => c.CategoriaId == id);
             if(categoria is null)
             {
                 return NotFound($"Categoria com o id {id} não encontrada...");
             }
-            _repository.Delete(categoria);
+            await _uof.CategoriaRepository.Delete(categoria);
+            await _uof.Commit();
             return Ok(categoria);
         }
     }

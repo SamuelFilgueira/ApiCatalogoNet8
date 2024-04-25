@@ -6,8 +6,8 @@ namespace ApiCatalogoNet8.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         public AppDbContext _context;
-        private IProdutoRepository _produtoRepo;
-        private ICategoriaRepository _categoriaRepo;
+        private IProdutoRepository? _produtoRepo;
+        private ICategoriaRepository? _categoriaRepo;
 
         public UnitOfWork(AppDbContext context)
         {

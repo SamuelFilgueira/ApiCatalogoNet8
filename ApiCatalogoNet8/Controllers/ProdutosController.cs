@@ -12,18 +12,17 @@ namespace ApiCatalogoNet8.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private readonly IProdutoRepository _produtoRepository;
-        private readonly IRepository<Produto> _repository;
-        public ProdutosController(IRepository<Produto> repository, IProdutoRepository produtoRepository)
+        private readonly IUnitOfWork _uof;
+
+        public ProdutosController(IUnitOfWork uof)
         {
-            _produtoRepository = produtoRepository;
-            _repository = repository;
+            _uof = uof;
         }
 
         [HttpGet("produtos/{id}")]
         public async Task<ActionResult<IEnumerable<Produto>>> GetProdutosPorCategoria(int id)
         {
-            var produtos = await _produtoRepository.GetProdutosPorCategoria(id);
+            var produtos = await _uof.ProdutoRepository.GetProdutosPorCategoria(id);
             if(produtos is null)
             {
                 return NotFound();
@@ -35,7 +34,7 @@ namespace ApiCatalogoNet8.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produto>>> Get()
         {
-            var produtos = await _repository.GetAll();
+            var produtos = await _uof.ProdutoRepository.GetAll();
 
             if (produtos is null)
             {
@@ -47,7 +46,7 @@ namespace ApiCatalogoNet8.Controllers
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
         public async Task<ActionResult<Produto>> Get(int id)
         {
-            var produto = await _repository.Get(p => p.ProdutoId == id);
+            var produto = await _uof.ProdutoRepository.Get(p => p.ProdutoId == id);
 
             if (produto is null)
             {
@@ -66,7 +65,8 @@ namespace ApiCatalogoNet8.Controllers
                 return BadRequest();
             }
 
-            await _repository.Create(novoProduto);
+            await _uof.ProdutoRepository.Create(novoProduto);
+            _uof.Commit();
             return new CreatedAtRouteResult("ObterProduto", new { id = novoProduto.ProdutoId }, novoProduto);
         }
 
@@ -78,19 +78,21 @@ namespace ApiCatalogoNet8.Controllers
                 return BadRequest();
             }
 
-            var produtoAtualizado = await _repository.Update(produto);
+            var produtoAtualizado = await _uof.ProdutoRepository.Update(produto);
+            _uof.Commit();
             return Ok(produtoAtualizado);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Produto>> Delete(int id)
         {
-            var produto = await _repository.Get(p => p.ProdutoId == id);
+            var produto = await _uof.ProdutoRepository.Get(p => p.ProdutoId == id);
             if(produto is null)
             {
                 return BadRequest();
             }
-            await _repository.Delete(produto);
+            await _uof.ProdutoRepository.Delete(produto);
+            _uof.Commit();
             return Ok(produto);
         }
     }
